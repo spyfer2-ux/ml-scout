@@ -1,0 +1,53 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #ffffff;
+  --bg2: #f8f8f7;
+  --bg3: #f1efea;
+  --text: #1a1a1a;
+  --text2: #5f5e5a;
+  --text3: #888780;
+  --border: rgba(0,0,0,0.12);
+  --border2: rgba(0,0,0,0.22);
+  --radius: 8px;
+  --radius-lg: 12px;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1c1e;
+    --bg2: #2c2c2e;
+    --bg3: #3a3a3c;
+    --text: #f2f2f7;
+    --text2: #aeaeb2;
+    --text3: #636366;
+    --border: rgba(255,255,255,0.1);
+    --border2: rgba(255,255,255,0.2);
+  }
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg2);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+/* badge palettes — light */
+.b-green  { background: #EAF3DE; color: #3B6D11; }
+.b-blue   { background: #E6F1FB; color: #185FA5; }
+.b-gray   { background: #F1EFE8; color: #5F5E5A; }
+.b-amber  { background: #FAEEDA; color: #854F0B; }
+
+/* badge palettes — dark */
+@media (prefers-color-scheme: dark) {
+  .b-green  { background: #27500A; color: #C0DD97; }
+  .b-blue   { background: #0C447C; color: #B5D4F4; }
+  .b-gray   { background: #444441; color: #D3D1C7; }
+  .b-amber  { background: #633806; color: #FAC775; }
+}
+
+/* Spinner */
+@keyframes spin { to { transform: rotate(360deg); } }
