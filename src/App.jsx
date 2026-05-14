@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import styles from './App.module.css'
 
-const BASE = 'https://api.mercadolibre.com'
+const BASE = '/api/ml'
 const SITE = 'MLB'
 
 function fBRL(price) {
@@ -19,11 +19,11 @@ function ltLabel(t) {
 
 // ─── Search tab ────────────────────────────────────────────────────────────────
 function SearchTab({ initQuery }) {
-  const [query, setQuery]   = useState(initQuery || '')
+  const [query, setQuery] = useState(initQuery || '')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError]   = useState('')
-  const [total, setTotal]   = useState(0)
+  const [error, setError] = useState('')
+  const [total, setTotal] = useState(0)
 
   const doSearch = useCallback(async (q) => {
     const term = q || query
@@ -94,11 +94,11 @@ function SearchTab({ initQuery }) {
 
 // ─── Spy tab ───────────────────────────────────────────────────────────────────
 function SpyTab() {
-  const [input, setInput]   = useState('')
-  const [item, setItem]     = useState(null)
+  const [input, setInput] = useState('')
+  const [item, setItem] = useState(null)
   const [seller, setSeller] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [error, setError]   = useState('')
+  const [error, setError] = useState('')
 
   const spy = async () => {
     const id = parseItemId(input)
@@ -247,7 +247,7 @@ function TrendsTab({ onSearch }) {
 
 // ─── Root ──────────────────────────────────────────────────────────────────────
 export default function App() {
-  const [tab, setTab]         = useState('search')
+  const [tab, setTab] = useState('search')
   const [trendQuery, setTrendQuery] = useState(null)
 
   const handleTrendClick = (kw) => {
@@ -256,9 +256,9 @@ export default function App() {
   }
 
   const TABS = [
-    { id: 'search',  label: 'Mais vendidos' },
-    { id: 'spy',     label: 'Espionar concorrente' },
-    { id: 'trends',  label: 'Tendências' },
+    { id: 'search', label: 'Mais vendidos' },
+    { id: 'spy', label: 'Espionar concorrente' },
+    { id: 'trends', label: 'Tendências' },
   ]
 
   return (
@@ -283,9 +283,9 @@ export default function App() {
           ))}
         </nav>
 
-        {tab === 'search'  && <SearchTab key={trendQuery} initQuery={trendQuery} />}
-        {tab === 'spy'     && <SpyTab />}
-        {tab === 'trends'  && <TrendsTab onSearch={handleTrendClick} />}
+        {tab === 'search' && <SearchTab key={trendQuery} initQuery={trendQuery} />}
+        {tab === 'spy' && <SpyTab />}
+        {tab === 'trends' && <TrendsTab onSearch={handleTrendClick} />}
       </main>
     </div>
   )
