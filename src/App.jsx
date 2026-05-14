@@ -17,24 +17,48 @@ function ltLabel(t) {
   return { gold_special: 'Ouro especial', gold_pro: 'Gold pro', silver: 'Prata', bronze: 'Bronze', free: 'Grátis' }[t] || t || '—'
 }
 
+function SetupBanner() {
+  return (
+    <div style={{
+      background: '#fff3cd', border: '1px solid #ffc107', borderRadius: 8,
+      padding: '16px 20px', margin: '16px 0', color: '#856404'
+    }}>
+      <strong>⚙️ Configuração necessária</strong>
+      <p style={{ margin: '8px 0 4px' }}>Para usar o ML Scout, adicione suas credenciais do Mercado Livre no Netlify:</p>
+      <ol style={{ margin: '8px 0', paddingLeft: 20 }}>
+        <li>Acesse <strong>developers.mercadolivre.com.br</strong> → crie um app gratuito</li>
+        <li>Copie o <strong>Client ID</strong> e <strong>Client Secret</strong> do seu app</li>
+        <li>No Netlify: <strong>Site config → Environment variables</strong></li>
+        <li>Adicione: <code>ML_CLIENT_ID</code> e <code>ML_CLIENT_SECRET</code></li>
+        <li>Redeploy o site</li>
+      </ol>
+    </div>
+  )
+}
+
 // ─── Search tab ────────────────────────────────────────────────────────────────
 function SearchTab({ initQuery }) {
   const [query, setQuery] = useState(initQuery || '')
   const [results, setResults] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [needsSetup, setNeedsSetup] = useState(false)
   const [total, setTotal] = useState(0)
 
   const doSearch = useCallback(async (q) => {
     const term = q || query
     if (!term.trim()) return
-    setLoading(true); setError(''); setResults([])
+    setLoading(true); setError(''); setResults([]); setNeedsSetup(false)
     try {
       const res = await fetch(`${BASE}/sites/${SITE}/search?q=${encodeURIComponent(term)}&sort=sold_quantity&limit=20`)
-      if (!res.ok) throw new Error()
       const data = await res.json()
-      setResults(data.results || [])
-      setTotal(data.paging?.total || 0)
+      if (!res.ok) {
+        if (data.error === 'config_required') { setNeedsSetup(true) }
+        else { setError('Erro ao buscar na API do Mercado Livre. Tente novamente.') }
+      } else {
+        setResults(data.results || [])
+        setTotal(data.paging?.total || 0)
+      }
     } catch {
       setError('Erro ao buscar na API do Mercado Livre. Tente novamente.')
     }
@@ -58,6 +82,7 @@ function SearchTab({ initQuery }) {
         </button>
       </div>
 
+      {needsSetup && <SetupBanner />}
       {error && <div className={styles.error}>{error}</div>}
 
       {results.length > 0 && (
@@ -99,19 +124,24 @@ function SpyTab() {
   const [seller, setSeller] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [needsSetup, setNeedsSetup] = useState(false)
 
   const spy = async () => {
     const id = parseItemId(input)
     if (!id) return
-    setLoading(true); setError(''); setItem(null); setSeller(null)
+    setLoading(true); setError(''); setItem(null); setSeller(null); setNeedsSetup(false)
     try {
       const ir = await fetch(`${BASE}/items/${id}`)
-      if (!ir.ok) throw new Error('Item não encontrado. Verifique o ID ou URL.')
       const it = await ir.json()
-      setItem(it)
-      if (it.seller_id) {
-        const sr = await fetch(`${BASE}/users/${it.seller_id}`)
-        setSeller(await sr.json())
+      if (!ir.ok) {
+        if (it.error === 'config_required') { setNeedsSetup(true) }
+        else { setError(it.message || 'Item não encontrado. Verifique o ID ou URL.') }
+      } else {
+        setItem(it)
+        if (it.seller_id) {
+          const sr = await fetch(`${BASE}/users/${it.seller_id}`)
+          setSeller(await sr.json())
+        }
       }
     } catch (e) {
       setError(e.message || 'Erro ao buscar item.')
@@ -135,6 +165,7 @@ function SpyTab() {
       </div>
       <p className={styles.hint}>Cole o link do produto ou o ID (ex: MLB1234567890)</p>
 
+      {needsSetup && <SetupBanner />}
       {error && <div className={styles.error}>{error}</div>}
       {loading && <div className={styles.loading}><span className={styles.spin} />Buscando dados do anúncio...</div>}
 
@@ -212,12 +243,18 @@ function StatBox({ value, label, small }) {
 function TrendsTab({ onSearch }) {
   const [trends, setTrends] = useState([])
   const [loading, setLoading] = useState(false)
+  const [needsSetup, setNeedsSetup] = useState(false)
 
   const load = async () => {
-    setLoading(true)
+    setLoading(true); setNeedsSetup(false)
     try {
       const res = await fetch(`${BASE}/trends/${SITE}`)
-      setTrends(await res.json() || [])
+      const data = await res.json()
+      if (res.ok) {
+        setTrends(Array.isArray(data) ? data : [])
+      } else if (data.error === 'config_required') {
+        setNeedsSetup(true)
+      }
     } catch {}
     setLoading(false)
   }
@@ -231,6 +268,7 @@ function TrendsTab({ onSearch }) {
         <button className={styles.btnSm} onClick={load} disabled={loading}>↻ Atualizar</button>
       </div>
 
+      {needsSetup && <SetupBanner />}
       {loading && <div className={styles.loading}><span className={styles.spin} />Buscando tendências...</div>}
 
       <div className={styles.tGrid}>
