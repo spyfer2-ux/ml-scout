@@ -4,6 +4,6 @@
 
 [[redirects]]
   from = "/api/ml/*"
-  to = "https://api.mercadolibre.com/:splat"
+  to = "/.netlify/functions/ml-proxy/:splat"
   status = 200
   force = true
